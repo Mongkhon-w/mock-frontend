@@ -6,39 +6,19 @@ export const AppProvider = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [theme, setTheme] = useState('light');
   
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // 💡 แก้ไข: เช็คจาก localStorage ตั้งแต่ต้น ถ้ามี Token แปลว่าล็อกอินอยู่
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
   
-  // จำลองฐานข้อมูลผู้ใช้งาน (มี admin เริ่มต้นให้ 1 คน)
-  const [usersDb, setUsersDb] = useState([{ username: 'admin', password: '1234' }]);
-
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
-  // ฟังก์ชันสมัครสมาชิก (Register)
-  const registerUser = (username, password) => {
-    // เช็คว่ามี username นี้ในระบบหรือยัง
-    const userExists = usersDb.find(u => u.username === username);
-    if (userExists) {
-      return { success: false, message: 'Username นี้มีผู้ใช้งานแล้ว!' };
-    }
-    
-    // ถ้ายังไม่มี ให้บันทึกเพิ่มเข้าไป
-    setUsersDb(prev => [...prev, { username, password }]);
-    return { success: true, message: 'สมัครสมาชิกสำเร็จ!' };
-  };
-
-  // ฟังก์ชันเข้าสู่ระบบ (Login)
-  const login = (username, password) => {
-    // ค้นหาว่ามี user และ password ตรงกับในฐานข้อมูลจำลองไหม
-    const user = usersDb.find(u => u.username === username && u.password === password);
-    if (user) {
-      setIsAuthenticated(true);
-      return true;
-    }
-    return false;
+  // ฟังก์ชัน Login (ตอนนี้เราย้ายไปทำ API Call ที่หน้า Login แล้ว ฟังก์ชันนี้แค่เปลี่ยนสถานะใน UI)
+  const login = () => {
+    setIsAuthenticated(true);
   };
 
   const logout = () => {
+    localStorage.removeItem('authToken'); // ลบ Token ออกเมื่อ Logout
     setIsAuthenticated(false);
   };
 
@@ -50,7 +30,7 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider value={{ 
       isSidebarOpen, toggleSidebar, 
       theme, toggleTheme, 
-      isAuthenticated, login, logout, registerUser 
+      isAuthenticated, login, logout 
     }}>
       {children}
     </AppContext.Provider>

@@ -1,25 +1,41 @@
-// src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { loginAPI } from '../services/authService'; // นำเข้า API Service 
 
 export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false); // State สำหรับปุ่ม Loading
   
   const { login } = useApp();
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // async เพื่อรอ API
     e.preventDefault();
+    setIsLoading(true);
+    setErrorMsg('');
     
-    const isSuccess = login(username, password);
-    
-    if (isSuccess) {
-      navigate('/'); 
-    } else {
-      setErrorMsg('Username หรือ Password ไม่ถูกต้อง!');
+    try {
+      // 1. ยิง API ไปตรวจสอบกับ Backend (MariaDB)
+      const result = await loginAPI(username, password);
+      
+      if (result.success) {
+        // 2. ถ้าสำเร็จ ให้ฝัง Token ลงในเบราว์เซอร์ (แก้ปัญหารีเฟรชแล้วหลุด)
+        localStorage.setItem('authToken', result.token);
+        
+        // 3. อัปเดตสถานะใน AppContext
+        login(); 
+        
+        // 4. พาไปหน้า Dashboard
+        navigate('/'); 
+      }
+    } catch (err) {
+      // ดักจับ Error ที่ Backend ส่งกลับมา (เช่น รหัสผิด)
+      setErrorMsg(err.message || 'Username หรือ Password ไม่ถูกต้อง!');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -51,8 +67,19 @@ export const Login = () => {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <button type="submit" className="btn-submit" style={{ marginTop: '8px', padding: '12px', fontSize: '1.1rem', backgroundColor: '#0ea5e9' }}>
-            Login
+          <button 
+            type="submit" 
+            className="btn-submit" 
+            disabled={isLoading} // 👈 ป้องกันการกดเบิ้ลตอนโหลด
+            style={{ 
+              marginTop: '8px', 
+              padding: '12px', 
+              fontSize: '1.1rem', 
+              backgroundColor: isLoading ? '#9ca3af' : '#0ea5e9',
+              cursor: isLoading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isLoading ? 'กำลังตรวจสอบ...' : 'Login'}
           </button>
         </form>
 

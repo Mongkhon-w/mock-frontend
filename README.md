@@ -1,7 +1,12 @@
-# 🚀 สร้าง Frontend (Vite) สำหรับทดสอบ UI
+#  🚀 Finance Management System (Full-Stack)
+แอปพลิเคชันจัดการธุรกรรมทางการเงิน พัฒนาด้วยเทคโนโลยีสมัยใหม่ รองรับการสมัครสมาชิกและจัดการข้อมูลส่วนตัว
+
+## 🛠 Tech Stack
+* Database: MySQL / MariaDB
+* Frontend: React, Vite, React Router, Context API
+* Backend: Node.js, Express, Prisma (v7), Bcrypt
 
 ## 🛠️ Required Tools
-
 * **Runtime/Environment:** Node.js
 * **Build Tool:** Vite
 * **Frontend Framework:** React.js
@@ -43,6 +48,8 @@ touch context/AppContext.jsx
 # สร้างไฟล์ Hook & Service
 touch hooks/useTransactions.js
 touch services/apiService.js
+touch services/authService.js
+touch services/transactionService.js
 touch utils/exportUtils.js
 
 # สร้างไฟล์ Layout
